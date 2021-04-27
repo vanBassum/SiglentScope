@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FRMLib.Scope;
 using Siglent;
 using STDLib.Ethernet;
 
@@ -18,6 +19,9 @@ namespace SiglentScope
     public partial class Form1 : Form
     {
         SDS1104 siglent = new SDS1104();
+        ScopeController scope = new ScopeController();
+
+        Trace t1 = new Trace { };
 
 
         public Form1()
@@ -25,20 +29,73 @@ namespace SiglentScope
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
-
+            scopeView1.DataSource = scope;
+            scope.Traces.Add(t1);
+            timer1.Start();
+            timer1.Interval = 1000;
+            trackBar1.Value = trackBar1.Maximum / 4;
+            await siglent.ConnectAsync(textBox2.Text);
         }
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            await siglent.ConnectAsync(textBox2.Text);
+            
         }
+
+
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            await siglent.GetWaveForm(SDS1104.Channels.C3);
+
         }
+        double[] pts1;
+        double[] pts2;
+
+        object lck = new object();
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            draw();
+        }
+
+        private async void timer1_Tick(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            try
+            {
+                pts1 = await siglent.GetWaveForm(SDS1104.Channels.C1);
+                pts2 = await siglent.GetWaveForm(SDS1104.Channels.C3);
+                draw();
+            }
+            catch { }
+            timer1.Start();
+        }
+
+        void draw()
+        {
+            if (pts1 != null)
+            {
+
+                t1.Points.Clear();
+                double offset = -1E-6 * (trackBar1.Value - trackBar1.Maximum / 2);
+
+                double p = 0;
+                for (int i = 0; i < pts1.Length; i++)
+                {
+                    p += -pts1[i] + offset;
+
+                    t1.Points.Add(pts2[i], p);
+                }
+
+                t1.DrawStyle = Trace.DrawStyles.Lines;
+                t1.Scale = 0.5;
+                t1.Offset = -2;
+                scopeView1.AutoScaleHorizontal();
+            }
+        }
+
     }
 
 
@@ -64,6 +121,10 @@ namespace Siglent
             return await scpi.ConnectAsync(host, cts);
         }
 
+        public async Task SetupWaveForm(int sp = 1, int np = 0, int fp = 0, CancellationTokenSource cts = null)
+        {
+            await scpi.SendCommand(Encoding.ASCII.GetBytes($"WFSU SP, {sp}, NP, {np}, FP, {fp}"), cts);
+        }
 
 
         public async Task<double[]> GetWaveForm(Channels channel, CancellationTokenSource cts = null)
@@ -75,15 +136,18 @@ namespace Siglent
 
             byte[] wave = await scpi.SendCommand(Encoding.ASCII.GetBytes($"{channel}:WaveForm? DAT2"), cts);
 
-            //Match blkLenM = Regex.Match(description, @"#.(\d+)");
+            string header = Encoding.ASCII.GetString(wave,0,  25);
+            Match blkLen = Regex.Match(header, @"#.(\d+)");
 
-            //int blkLen = int.Parse(blkLenM.Groups[1].Value);
 
-            double[] res = new double[wave.Length];
+            int blkSize = int.Parse(blkLen.Groups[1].Value);
+            int start = blkLen.Index + blkLen.Length;
 
-            for (int i = 0; i < wave.Length; i++)
+            double[] res = new double[blkSize];
+
+            for (int i = 0; i < blkSize; i++)
             {
-                double x = wave[i];
+                double x = wave[i + start];
                 if (x > 127)
                     x -= 255;
 
