@@ -38,6 +38,27 @@ namespace SCPI.Devices.SDS1104XE
         }
 
 
+        public decimal? Offset
+        {
+            get
+            {
+                OFST cmd = new OFST();
+                cmd.Channel = Name;
+                if (Client.ExecuteQuery(cmd) == Status.Success)
+                    return cmd.Value;
+                return null;
+            }
+            set
+            {
+                OFST cmd = new OFST();
+                cmd.Value = value.Value;
+                cmd.Channel = Name;
+                if (Client.ExecuteCommand(cmd) != Status.Success)
+                    throw cmd.Status.Exception;
+            }
+        }
+
+
 
 
         public decimal GetPhase(Channel channel)

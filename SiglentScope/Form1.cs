@@ -38,6 +38,8 @@ namespace SiglentScope
             siglent.Channels[0].VDIV = vdiv1;
             siglent.Channels[2].VDIV = vdiv2;
 
+            siglent.TDIV = (decimal?)100E-6;
+
             //IDN idn = new IDN();
             //if (client.ExecuteCommand(idn) == Status.Success)
             //{

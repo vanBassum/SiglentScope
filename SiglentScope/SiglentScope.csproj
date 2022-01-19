@@ -55,7 +55,9 @@
     <Compile Include="SCPI\Commands\IDN.cs" />
     <Compile Include="SCPI\Convert.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Channel.cs" />
+    <Compile Include="SCPI\Devices\SDS1104XE\Commands\OFST.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Commands\PAVA.cs" />
+    <Compile Include="SCPI\Devices\SDS1104XE\Commands\TDIV.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Commands\VDIV.cs" />
     <Compile Include="SCPI\IClient.cs" />
     <Compile Include="SCPI\ICommand.cs" />
