@@ -56,12 +56,14 @@
     <Compile Include="SCPI\Convert.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Channel.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Commands\PAVA.cs" />
+    <Compile Include="SCPI\Devices\SDS1104XE\Commands\VDIV.cs" />
     <Compile Include="SCPI\IClient.cs" />
     <Compile Include="SCPI\ICommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\SDS1104XE.cs" />
     <Compile Include="SCPI\Clients\TCPSCPI.cs" />
+    <Compile Include="SCPI\IQuery.cs" />
     <Compile Include="SCPI\Status.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

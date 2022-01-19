@@ -14,8 +14,29 @@ namespace SCPI.Devices.SDS1104XE
             Client = client;
         }
 
-        public decimal? GetAmplitude() => Pava("AMPL");
-        public decimal? GetFrequency() => Pava("FREQ");
+        public decimal? Amplitude => GetPava("AMPL");
+        public decimal? Frequency => GetPava("FREQ");
+
+        public decimal? VDIV 
+        { 
+            get 
+            {
+                VDIV cmd = new VDIV();
+                cmd.Channel = Name;
+                if (Client.ExecuteQuery(cmd) == Status.Success)
+                    return cmd.Value;
+                return null;
+            } 
+            set 
+            {
+                VDIV cmd = new VDIV();
+                cmd.Value = value.Value;
+                cmd.Channel = Name;
+                if (Client.ExecuteCommand(cmd) != Status.Success)
+                    throw cmd.Status.Exception;
+            } 
+        }
+
 
 
 
@@ -26,12 +47,12 @@ namespace SCPI.Devices.SDS1104XE
 
 
 
-        private decimal? Pava(string param)
+        private decimal? GetPava(string param)
         {
             PAVA cmd = new PAVA();
             cmd.Channel = Name;
             cmd.Parameters = new string[] { param };
-            if (Client.ExecuteCommand(cmd) == Status.Success)
+            if (Client.ExecuteQuery(cmd) == Status.Success)
                 return cmd.Value;
             return null;
         }

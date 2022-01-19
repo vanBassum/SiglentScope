@@ -4,6 +4,8 @@
     {
         void Connect(string host);
         Status ExecuteCommand(ICommand command);
+        Status ExecuteQuery(IQuery command);
+        
     }
 
 

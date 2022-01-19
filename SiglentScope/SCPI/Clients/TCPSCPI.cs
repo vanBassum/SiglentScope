@@ -37,6 +37,10 @@ namespace SCPI.Clients
             stream.Read(buf, 0, buf.Length);
         }
 
+
+
+
+
         public Status ExecuteCommand(ICommand command)
         {
             Status result = Status.Unknown;
@@ -46,16 +50,39 @@ namespace SCPI.Clients
                 byte[] response;
                 try
                 {
-                    sw.Restart();
-                    response = Send(command.Command);
-                    sw.Stop();
+                    response = Send(command.Command, false);   //TODO: What about errorhandling?
+                    result = Status.Success;
+                }
+                catch (Exception exception)
+                {
+                    result = Status.SendingError;
+                    result.Exception = exception;
+                }
+            }
+            else
+                result = Status.NotConnected;
+
+            result.Duration = sw.Elapsed;
+            command.Status = result;
+            return result;
+        }
+
+        public Status ExecuteQuery(IQuery command)
+        {
+            Status result = Status.Unknown;
+
+            if (Client.Connected)
+            {
+                byte[] response;
+                try
+                {
+                    response = Send(command.Query, true);
                     if (command.Parse(response))
                     {
                         result = Status.Success;
                     }
                     else
                         result = Status.ParsingError;
-
                 }
                 catch (Exception exception)
                 {
@@ -72,17 +99,20 @@ namespace SCPI.Clients
         }
 
 
-        private byte[] Send(string request)
+        private byte[] Send(string request, bool waitForEOL)
         {
+            sw.Restart();
             byte[] response = new byte[1024];
             var data = Encoding.ASCII.GetBytes(request + "\n");
-
             stream.Write(data, 0, data.Length);
             int rdPtr = 0;
-            while (!response.Contains((byte)'\n'))
+            do
+            {
                 rdPtr += stream.Read(response, rdPtr, response.Length - rdPtr);
+            }
+            while (!response.Contains((byte)'\n') && waitForEOL);
             Array.Resize(ref response, rdPtr+1);
-            
+            sw.Stop();
             return response;
         }
     }
