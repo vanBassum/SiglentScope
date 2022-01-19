@@ -59,6 +59,8 @@
     <Compile Include="SCPI\Devices\SDS1104XE\Commands\PAVA.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Commands\TDIV.cs" />
     <Compile Include="SCPI\Devices\SDS1104XE\Commands\VDIV.cs" />
+    <Compile Include="SCPI\Devices\SDS1104XE\Commands\WF.cs" />
+    <Compile Include="SCPI\Devices\SDS1104XE\Commands\WFSU.cs" />
     <Compile Include="SCPI\IClient.cs" />
     <Compile Include="SCPI\ICommand.cs" />
     <Compile Include="Program.cs" />
