@@ -16,7 +16,7 @@ namespace SCPI.Commands
 
         public bool Parse(byte[] data)
         {
-            var id = Encoding.ASCII.GetString(data).Split(',').Select(f => f.Trim());
+            var id = Encoding.ASCII.GetString(data).Trim('\0', '\n').Split(',').Select(f => f.Trim());
             // According to IEEE 488.2 there are four fields in the response
             if (id.Count() == 4)
             {

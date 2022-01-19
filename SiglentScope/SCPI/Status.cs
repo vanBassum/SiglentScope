@@ -4,25 +4,15 @@ namespace SCPI
 {
     public class Status
     {
-        Exception _Exception;
         private Codes Code { get; }
-        public Exception Exception => _Exception ?? new Exception($"Some error has occured '{Code.ToString()}'");
+        public Exception Exception { get; set; }
+        public TimeSpan Duration { get; set; }
 
         private Status(Codes code)
         {
             Code = code;
-        }
-
-        public Status(Status status, string message)
-        {
-            Code = status.Code;
-            _Exception = new Exception(message);
-        }
-
-        public Status(Status status, Exception exception)
-        {
-            Code = status.Code;
-            _Exception = exception;
+            if (code != Codes.Success)
+                Exception = new Exception($"Error '{code}'");
         }
 
         public override bool Equals(Object obj)
@@ -32,11 +22,8 @@ namespace SCPI
             return false;
         }
 
-        public override string ToString()
-        {
-            return Exception?.Message;
-        }
-
+        public static bool operator ==(Status obj1, Status obj2) => obj1.Equals(obj2);
+        public static bool operator !=(Status obj1, Status obj2) => !obj1.Equals(obj2);
 
         public static Status Unknown => new Status(Codes.Unknown);
         public static Status Success => new Status(Codes.Success);

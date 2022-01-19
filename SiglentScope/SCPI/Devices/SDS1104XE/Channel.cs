@@ -23,7 +23,19 @@ namespace SCPI.Devices.SDS1104XE
             {
                 return cmd.Value;
             }
-            throw cmd.Status.Exception;
+            return 0;
+        }
+
+        public decimal GetFrequency()
+        {
+            PAVA cmd = new PAVA();
+            cmd.Channel = Name;
+            cmd.Parameters = new string[] { "FREQ" };
+            if (Client.ExecuteCommand(cmd) == Status.Success)
+            {
+                return cmd.Value;
+            }
+            return 0;
         }
 
         public decimal GetPhase(Channel channel)

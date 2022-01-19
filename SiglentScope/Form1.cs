@@ -18,8 +18,7 @@ namespace SiglentScope
         Trace gain = new Trace { Pen = new Pen(Color.Yellow), DrawStyle = Trace.DrawStyles.Points, Scale = 0.125f, Offset = -0.5f };
         Trace phase = new Trace { Pen = new Pen(Color.Red) };
 
-
-        SDS1104XE siglent;
+        SDS1104XE siglent = new SDS1104XE(new TCPSCPI());
 
 
         public Form1()
@@ -32,32 +31,38 @@ namespace SiglentScope
             scopeView1.DataSource = scope;
             scope.Traces.Add(gain);
             scope.Traces.Add(phase);
-            timer1.Interval = 100;
+            timer1.Interval = 10;
+            siglent.Client.Connect(textBox2.Text);
+            timer1.Start();
 
-            TCPSCPI client = new TCPSCPI();
-            //client.Connect(textBox2.Text);
-            IDN idn = new IDN();
-            if (client.ExecuteCommand(idn) == Status.Success)
-            {
-                //Bla bla if idn == SDS1104XE
-
-                siglent = new SDS1104XE(client);
-                timer1.Start();
-            }
+            //IDN idn = new IDN();
+            //if (client.ExecuteCommand(idn) == Status.Success)
+            //{
+            //    //Bla bla if idn == SDS1104XE
+            //
+            //    siglent = new SDS1104XE(client);
+            //    timer1.Start();
+            //}
         }
 
 
         private async void timer1_Tick(object sender, EventArgs e)
         {
             timer1.Stop();
-            try
-            {
-                decimal aplitude1 = siglent.Channels[0].GetAmplitude();
+            decimal aplitude1   = siglent.Channels[0].GetAmplitude();
+            decimal aplitude2   = siglent.Channels[2].GetAmplitude();
+            decimal freq        = siglent.Channels[0].GetFrequency();
 
-                scopeView1.Refresh();
+            double a1 = (double)aplitude1;
+            double a2 = (double)aplitude2;
+            double f1 = (double)freq;
 
-            }
-            catch { }
+
+            gain.Points.Add(new STDLib.Math.PointD(f1, a2 / a1));
+
+
+            scopeView1.AutoScaleHorizontal();
+            scopeView1.Refresh();
             timer1.Start();
         }
 
