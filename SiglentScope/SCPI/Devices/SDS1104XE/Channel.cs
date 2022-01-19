@@ -14,29 +14,10 @@ namespace SCPI.Devices.SDS1104XE
             Client = client;
         }
 
-        public decimal GetAmplitude()
-        {
-            PAVA cmd = new PAVA();
-            cmd.Channel = Name;
-            cmd.Parameters = new string[] { "AMPL" };
-            if (Client.ExecuteCommand(cmd) == Status.Success)
-            {
-                return cmd.Value;
-            }
-            return 0;
-        }
+        public decimal? GetAmplitude() => Pava("AMPL");
+        public decimal? GetFrequency() => Pava("FREQ");
 
-        public decimal GetFrequency()
-        {
-            PAVA cmd = new PAVA();
-            cmd.Channel = Name;
-            cmd.Parameters = new string[] { "FREQ" };
-            if (Client.ExecuteCommand(cmd) == Status.Success)
-            {
-                return cmd.Value;
-            }
-            return 0;
-        }
+
 
         public decimal GetPhase(Channel channel)
         {
@@ -45,9 +26,16 @@ namespace SCPI.Devices.SDS1104XE
 
 
 
+        private decimal? Pava(string param)
+        {
+            PAVA cmd = new PAVA();
+            cmd.Channel = Name;
+            cmd.Parameters = new string[] { param };
+            if (Client.ExecuteCommand(cmd) == Status.Success)
+                return cmd.Value;
+            return null;
+        }
     }
-
-
 }
 
 

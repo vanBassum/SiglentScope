@@ -49,9 +49,9 @@ namespace SiglentScope
         private async void timer1_Tick(object sender, EventArgs e)
         {
             timer1.Stop();
-            decimal aplitude1   = siglent.Channels[0].GetAmplitude();
-            decimal aplitude2   = siglent.Channels[2].GetAmplitude();
-            decimal freq        = siglent.Channels[0].GetFrequency();
+            decimal aplitude1 = siglent.Channels[0].GetAmplitude() ?? 0;
+            decimal aplitude2 = siglent.Channels[2].GetAmplitude() ?? 0;
+            decimal freq = siglent.Channels[0].GetFrequency() ?? 0;
 
             double a1 = (double)aplitude1;
             double a2 = (double)aplitude2;
