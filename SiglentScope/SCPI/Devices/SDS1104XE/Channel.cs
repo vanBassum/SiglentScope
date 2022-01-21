@@ -1,5 +1,6 @@
 ﻿using SCPI.Devices.SDS1104XE.Commands;
 using System;
+using System.Collections.Generic;
 
 namespace SCPI.Devices.SDS1104XE
 {
@@ -58,6 +59,42 @@ namespace SCPI.Devices.SDS1104XE
             }
         }
 
+
+        public IEnumerable<decimal> GetWaveform(int index, int count, int sparsing)
+        {
+            decimal vdiv = VDIV??0;
+            decimal ofst = Offset??0;
+            SetupWaveform(index, count, sparsing);
+            byte[] rawWaveform = GetRawWaveform();
+
+            for (int i = 0; i < rawWaveform.Length; i++)
+            {
+                decimal x = rawWaveform[i];
+                if (x > 127)
+                    x -= 255;
+                yield return x * (vdiv / 25m) - ofst;
+            }
+        }
+
+
+        private void SetupWaveform(int index, int count, int sparsing)
+        {
+            WFSU cmd = new WFSU();
+            cmd.FirstPoint = index;
+            cmd.SampleSize = count;
+            cmd.Sparsing = sparsing;
+            cmd.Channel = Name;
+            Client.ExecuteCommand(cmd);
+        }
+
+
+        private byte[] GetRawWaveform()
+        {
+            WF cmd = new WF();
+            cmd.Channel = Name;
+            Client.ExecuteQuery(cmd);
+            return cmd.Data;
+        }
 
 
 
